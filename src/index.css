@@ -1,0 +1,253 @@
+@import "tailwindcss";
+
+@theme {
+  --color-cream: #fdf4eb;
+  --color-cream-deep: #f7e9da;
+  --color-cream-line: #ecd9c4;
+  --color-ink: #463527;
+  --color-ink-soft: #7d6a55;
+  --color-gold: #b98f5c;
+  --color-goldrich: #997340;
+  --color-sage: #9aa88d;
+  --color-blush: #e0b3a0;
+  --font-script: "Great Vibes", cursive;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Jost", system-ui, sans-serif;
+  --font-arabic: "Amiri", "Traditional Arabic", serif;
+  --font-urdu: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif;
+}
+
+/* Nastaliq needs extra vertical breathing room for its sweeping descenders */
+.urdu {
+  font-family: var(--font-urdu);
+  direction: rtl;
+  line-height: 2.35;
+  font-feature-settings: "kern" 1;
+}
+
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.3); }
+  50% { transform: scaleY(1); }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-serif);
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+/* nothing may ever spill sideways on a phone */
+#root {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: clip;
+}
+
+/* keep floating controls clear of notches / home indicators */
+.safe-dock-left {
+  left: max(1.25rem, env(safe-area-inset-left));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+.safe-dock-right {
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+}
+
+/* decorative layers never intercept taps or create scrollbars */
+svg {
+  max-width: 100%;
+}
+
+::selection {
+  background: #b98f5c33;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+}
+::-webkit-scrollbar-track {
+  background: #f7e9da;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(#d8b98d, #b98f5c);
+  border-radius: 99px;
+}
+
+/* ---------- keyframes ---------- */
+
+@keyframes sway-l {
+  0%, 100% { transform: rotate(-3.5deg) scale(1) translateY(0); }
+  50% { transform: rotate(0.5deg) scale(1.02) translateY(-4px); }
+}
+@keyframes sway-r {
+  0%, 100% { transform: rotate(3.5deg) scale(1) translateY(0); }
+  50% { transform: rotate(-0.5deg) scale(1.02) translateY(-4px); }
+}
+@keyframes float-soft {
+  0%, 100% { transform: translateY(0) rotate(0.001deg); }
+  50% { transform: translateY(-12px) rotate(0.001deg); }
+}
+@keyframes scroll-pill {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateY(16px); opacity: 0; }
+}
+@keyframes pulse-ring {
+  0% { transform: scale(1); opacity: 0.55; }
+  100% { transform: scale(1.55); opacity: 0; }
+}
+@keyframes shimmer-slide {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  100% { transform: translate3d(0, -110vh, 0) rotate(340deg); }
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.035); opacity: 1; }
+}
+@keyframes tick-pop {
+  0% { transform: translateY(-55%); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.sway-l { animation: sway-l 6.5s ease-in-out infinite; transform-origin: 50% 80%; }
+.sway-r { animation: sway-r 7s ease-in-out infinite; transform-origin: 50% 80%; }
+.float-soft { animation: float-soft 7s ease-in-out infinite; }
+.breathe { animation: breathe 5s ease-in-out infinite; }
+
+.shimmer-text {
+  background: linear-gradient(100deg, #c9a06b 25%, #f4e2c4 45%, #c9a06b 65%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-slide 3.2s linear infinite;
+}
+
+.texture-grain {
+  background-image: radial-gradient(#b98f5c14 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+
+.paper-card {
+  background:
+    radial-gradient(120% 90% at 50% 0%, #fffdf9 0%, #fdf6ec 55%, #f9ecdc 100%);
+}
+
+.gold-frame {
+  border: 1px solid #b98f5c55;
+  outline: 1px solid #b98f5c2e;
+  outline-offset: 6px;
+}
+
+.arch {
+  border-radius: 999px 999px 22px 22px;
+}
+
+/* ---------- theme palettes (design suggestion chips) ---------- */
+
+:root {
+  --field-bg: #fffdf8;
+  --field-ink: #463527;
+}
+
+[data-theme="maroon"] {
+  --color-cream: #3d0f18;
+  --color-cream-deep: #330c14;
+  --color-cream-line: #5e2430;
+  --color-ink: #f6e4d3;
+  --color-ink-soft: #d8b9a7;
+  --color-gold: #d1a062;
+  --color-goldrich: #edc488;
+  --color-sage: #b39b86;
+  --color-blush: #d98f86;
+  --field-bg: #4e1620;
+  --field-ink: #f6e4d3;
+}
+
+[data-theme="emerald"] {
+  --color-cream: #0f2b24;
+  --color-cream-deep: #0b241e;
+  --color-cream-line: #2b4a3f;
+  --color-ink: #f2e7d0;
+  --color-ink-soft: #cbbd9d;
+  --color-gold: #c9a576;
+  --color-goldrich: #e6c68e;
+  --color-sage: #9db3a2;
+  --color-blush: #c08a7a;
+  --field-bg: #123c32;
+  --field-ink: #f2e7d0;
+}
+
+[data-theme="midnight"] {
+  --color-cream: #191d3a;
+  --color-cream-deep: #141831;
+  --color-cream-line: #343a63;
+  --color-ink: #ece6d4;
+  --color-ink-soft: #c3bcab;
+  --color-gold: #c9a06b;
+  --color-goldrich: #e2c184;
+  --color-sage: #8f9a86;
+  --color-blush: #b98a8a;
+  --field-bg: #22264a;
+  --field-ink: #ece6d4;
+}
+
+[data-theme="rose"] {
+  --color-cream: #fbf0ee;
+  --color-cream-deep: #f6e3e0;
+  --color-cream-line: #eccdcd;
+  --color-ink: #4d3033;
+  --color-ink-soft: #8d6a64;
+  --color-gold: #c08a72;
+  --color-goldrich: #a9664f;
+  --color-sage: #a8ad92;
+  --color-blush: #e0a795;
+}
+
+/* cards turn into deep-toned keepsakes on the dark themes */
+[data-theme="maroon"] .paper-card {
+  background: radial-gradient(120% 90% at 50% 0%, #52161f 0%, #45121a 55%, #380e15 100%);
+}
+[data-theme="emerald"] .paper-card {
+  background: radial-gradient(120% 90% at 50% 0%, #173a31 0%, #122e27 55%, #0d241e 100%);
+}
+[data-theme="midnight"] .paper-card {
+  background: radial-gradient(120% 90% at 50% 0%, #272c52 0%, #1f2447 55%, #181c38 100%);
+}
+
+.field-input {
+  background: var(--field-bg);
+  color: var(--field-ink);
+  border-color: var(--color-cream-line);
+}
+.field-input::placeholder {
+  color: var(--field-ink);
+  opacity: 0.45;
+}
