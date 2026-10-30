@@ -16,10 +16,12 @@ The build is static and self-contained. It writes the all-events invitation to `
 - `dist/invite/walima/index.html`
 - `dist/invite/valima/index.html` (Walima spelling alias)
 
-The existing query links (`?invite=all`, `?invite=mehndi`, `?invite=barat`, `?invite=walima`) continue to work. Use the `/invite/<event>/` paths when sharing an event-specific invitation so social crawlers receive matching static metadata.
+The existing query links (`?invite=all`, `?invite=mehndi`, `?invite=barat`, `?invite=walima`, and `?invite=valima`) continue to work. The production `.htaccess` maps event query links internally to their static metadata pages while leaving the visible URL unchanged. Equivalent `/invite/<event>/` paths are also available.
 
 ## Deployment notes
 
-This project has not been deployed by this workflow. A deployment must publish the root HTML, `wedding-share.jpg`, and the three nested `invite` pages while preserving the existing `.htaccess` and unrelated files in the Hostinger document root. Event-specific thumbnail variants were not supplied; those pages intentionally omit social preview images rather than reusing the all-events artwork.
+The current build is deployed to `https://3bs.io`. The root page, shared thumbnail, query links, and event paths were checked over HTTPS. Event pages use the supplied wedding thumbnail with event-specific titles and descriptions. Social platforms may cache old previews; after a deployment, allow time for refresh or request a rescrape using the platform's sharing debugger.
+
+When deploying future builds, publish `index.html`, `wedding-share.jpg`, all four nested `invite` pages, and the scoped root `.htaccess` rules. Do not overwrite or modify sibling projects in the Hostinger document root.
 
 The existing soundtrack remains the YouTube video ID configured in `src/audio/YoutubeMusic.tsx`. Browser/OS autoplay and codec support vary; playback status follows YouTube player events and offers an explicit retry and direct YouTube link.
