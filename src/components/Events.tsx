@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { CalendarDays, Clock3, MapPin, Navigation } from "lucide-react";
+import { CalendarDays, CalendarPlus, Clock3, MapPin, Navigation } from "lucide-react";
 import { Reveal, Ornament, SparkleGlyph } from "./Reveal";
 import { HeartFlourish, FlowerSprig, Paisley } from "./Ornaments";
+import { formatWeddingDate, formatWeddingTime } from "../config/wedding";
+import { downloadCalendar } from "../utils/calendar";
 import type { EventKey, WeddingConfig, WeddingEvent } from "../config/wedding";
 
 /** each ceremony gets its own accent so the cards read at a glance */
@@ -15,10 +17,12 @@ function EventCard({
   ev,
   index,
   showUrdu,
+  config,
 }: {
   ev: WeddingEvent;
   index: number;
   showUrdu: boolean;
+  config: WeddingConfig;
 }) {
   const accent = ACCENT[ev.key];
   return (
@@ -67,52 +71,79 @@ function EventCard({
         </p>
       )}
 
-      <dl className="relative mt-5 w-full space-y-2.5 text-left">
-        {[
-          { icon: CalendarDays, v: ev.date },
-          ...(ev.times?.length
-            ? ev.times.map((t) => ({ icon: Clock3, v: `${t.label}: ${t.value}` }))
-            : [{ icon: Clock3, v: ev.time }]),
-          { icon: MapPin, v: ev.venue },
-        ].map(({ icon: Icon, v }) => (
-          <div key={v} className="flex items-start gap-3">
-            <span
-              className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full border"
-              style={{ borderColor: `${accent.ring}66` }}
-            >
-              <Icon className="h-3.5 w-3.5" strokeWidth={1.6} style={{ color: accent.ring }} />
-            </span>
-            <dd className="font-sans text-[10px] uppercase leading-relaxed tracking-[0.2em] text-ink-soft">
-              {v}
+      <dl className="relative mt-5 w-full space-y-4 text-left">
+        <div className="flex items-start gap-3">
+          <CalendarDays className="mt-1 h-5 w-5 shrink-0 text-goldrich" aria-hidden />
+          <div>
+            <dt className="font-sans text-xs font-medium text-ink-soft">Date</dt>
+            <dd className="mt-0.5 font-sans text-base leading-relaxed text-ink">
+              {formatWeddingDate(ev.times[0].isoDate)}
             </dd>
           </div>
-        ))}
+        </div>
+        <div className="flex items-start gap-3">
+          <Clock3 className="mt-1 h-5 w-5 shrink-0 text-goldrich" aria-hidden />
+          <div>
+            <dt className="font-sans text-xs font-medium text-ink-soft">Pakistan Standard Time</dt>
+            <dd className="mt-0.5 space-y-1 font-sans text-base leading-relaxed text-ink">
+              {ev.times.map((time) => (
+                <p key={time.isoDate}>
+                  <span>{time.label}: </span>
+                  <time dateTime={time.isoDate}>
+                    {formatWeddingTime(time.isoDate)}{time.note ? ` (${time.note})` : ""}
+                  </time>
+                </p>
+              ))}
+            </dd>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <MapPin className="mt-1 h-5 w-5 shrink-0 text-goldrich" aria-hidden />
+          <div className="min-w-0">
+            <dt className="font-sans text-xs font-medium text-ink-soft">
+              {ev.key === "barat" ? "Gathering & Departure Point" : "Venue"}
+            </dt>
+            <dd className="mt-0.5 font-sans text-base leading-relaxed text-ink [overflow-wrap:anywhere]">
+              {ev.venue}
+            </dd>
+          </div>
+        </div>
       </dl>
 
       {showUrdu && ev.venueUr && (
-        <p className="urdu relative mt-3 text-[13px] leading-[2.2] text-ink-soft">{ev.venueUr}</p>
+        <p lang="ur" dir="rtl" className="urdu relative mt-3 text-base leading-[2.2] text-ink-soft">{ev.venueUr}</p>
       )}
 
       {ev.note && (
-        <p className="relative mt-3 font-serif text-sm italic leading-relaxed text-ink-soft">
+        <p className="relative mt-3 font-serif text-base italic leading-relaxed text-ink-soft">
           {ev.note}
         </p>
       )}
       {showUrdu && ev.noteUr && (
-        <p className="urdu relative mt-2 text-[13px] leading-[2.2] text-ink-soft">{ev.noteUr}</p>
+        <p lang="ur" dir="rtl" className="urdu relative mt-2 text-base leading-[2.2] text-ink-soft">{ev.noteUr}</p>
       )}
 
-      <a
-        href={ev.mapUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`Open ${ev.name} venue in Google Maps`}
-        className="relative mt-4 inline-flex items-center gap-2 rounded-full border px-3.5 py-2 font-sans text-[9px] uppercase tracking-[0.22em] transition-colors hover:bg-gold/10 hover:text-ink"
-        style={{ borderColor: `${accent.ring}80`, color: accent.ring }}
-      >
-        <Navigation className="h-3.5 w-3.5" strokeWidth={1.6} />
-        Open in Google Maps
-      </a>
+      <div className="relative mt-5 grid w-full gap-2 sm:grid-cols-2">
+        <a
+          href={ev.mapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`Get directions to ${ev.name}: ${ev.venue}`}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border px-4 py-2 font-sans text-sm font-medium text-ink transition-colors hover:bg-gold/10"
+          style={{ borderColor: `${accent.ring}80` }}
+        >
+          <Navigation className="h-4 w-4" strokeWidth={1.8} />
+          Get Directions
+        </a>
+        <button
+          type="button"
+          onClick={() => downloadCalendar(config, [ev])}
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-gold/60 px-4 py-2 font-sans text-sm font-medium text-ink transition-colors hover:bg-gold/10"
+        >
+          <CalendarPlus className="h-4 w-4" strokeWidth={1.8} />
+          Add to Calendar
+        </button>
+      </div>
 
       {/* bottom shimmer */}
       <span
@@ -128,7 +159,7 @@ export function Events({ config }: { config: WeddingConfig }) {
   if (active.length === 0) return null;
 
   return (
-    <section className="relative overflow-hidden bg-cream-deep pb-10 pt-24 texture-grain sm:pb-12 sm:pt-28">
+    <section id="events" aria-labelledby="events-heading" className="relative overflow-hidden bg-cream-deep pb-10 pt-16 texture-grain sm:pb-12 sm:pt-20">
       <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-cream to-transparent" />
       <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-cream to-transparent" />
 
@@ -144,7 +175,7 @@ export function Events({ config }: { config: WeddingConfig }) {
             </div>
           </Reveal>
           <Reveal delay={0.1}>
-            <h2 className="mt-3 font-script text-5xl text-goldrich sm:text-6xl">
+            <h2 id="events-heading" className="mt-3 font-script text-5xl text-goldrich sm:text-6xl">
               {active.length === 1 ? active[0].name : "The Ceremonies"}
             </h2>
           </Reveal>
@@ -170,7 +201,7 @@ export function Events({ config }: { config: WeddingConfig }) {
           }`}
         >
           {active.map((ev, i) => (
-            <EventCard key={ev.key} ev={ev} index={i} showUrdu={config.showUrdu} />
+            <EventCard key={ev.key} ev={ev} index={i} showUrdu={config.showUrdu} config={config} />
           ))}
         </div>
 

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import confetti from "canvas-confetti";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Hand, CalendarPlus } from "lucide-react";
 import { Reveal, Ornament, SparkleGlyph } from "./Reveal";
 import { CornerVine, Paisley, MandalaRing } from "./Ornaments";
-import { icsUtcStamp, type WeddingConfig } from "../config/wedding";
+import type { WeddingConfig } from "../config/wedding";
+import { downloadCalendar } from "../utils/calendar";
 
 const CONFETTI_COLORS = ["#b98f5c", "#e0b3a0", "#9aa88d", "#f3ddba", "#c9a06b"];
 
@@ -16,7 +17,10 @@ export function ScratchDate({ config }: { config: WeddingConfig }) {
   const revealedRef = useRef(false);
   const [revealed, setRevealed] = useState(false);
   const [progress, setProgress] = useState(0);
-  const multipleDates = config.events.filter((event) => event.enabled).length > 1;
+  const activeEvents = config.events.filter((event) => event.enabled);
+  const multipleDates = activeEvents.length > 1;
+  const eventNames = activeEvents.map((event) => event.name).join(" · ");
+  const reduceMotion = useReducedMotion();
 
   const paintFoil = useCallback(() => {
     const canvas = canvasRef.current;
@@ -72,13 +76,27 @@ export function ScratchDate({ config }: { config: WeddingConfig }) {
   const fireConfetti = useCallback(() => {
     if (!wrapRef.current) return;
     const rect = wrapRef.current.getBoundingClientRect();
-    const x = (rect.left + rect.width / 2) / window.innerWidth;
-    const y = (rect.top + rect.height / 2) / window.innerHeight;
-    const opts = { colors: CONFETTI_COLORS, ticks: 220, gravity: 0.85, scalar: 0.9 };
-    confetti({ ...opts, particleCount: 90, spread: 75, origin: { x, y } });
-    window.setTimeout(() => confetti({ ...opts, particleCount: 50, angle: 60, spread: 60, origin: { x: x - 0.12, y } }), 180);
-    window.setTimeout(() => confetti({ ...opts, particleCount: 50, angle: 120, spread: 60, origin: { x: x + 0.12, y } }), 320);
-  }, []);
+    const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+    const x = clamp((rect.left + rect.width / 2) / window.innerWidth, 0.08, 0.92);
+    const y = clamp((rect.top + rect.height / 2) / window.innerHeight, 0.08, 0.88);
+    const opts = {
+      colors: CONFETTI_COLORS,
+      ticks: reduceMotion ? 100 : 220,
+      gravity: 0.85,
+      scalar: 0.9,
+      zIndex: 2000,
+      useWorker: false,
+      disableForReducedMotion: false,
+    };
+    const launch = () => {
+      confetti({ ...opts, particleCount: reduceMotion ? 22 : 90, spread: 75, origin: { x, y } });
+      if (!reduceMotion) {
+        window.setTimeout(() => confetti({ ...opts, particleCount: 50, angle: 60, spread: 60, origin: { x: clamp(x - 0.12, 0.08, 0.92), y } }), 180);
+        window.setTimeout(() => confetti({ ...opts, particleCount: 50, angle: 120, spread: 60, origin: { x: clamp(x + 0.12, 0.08, 0.92), y } }), 320);
+      }
+    };
+    window.requestAnimationFrame(launch);
+  }, [reduceMotion]);
 
   const checkProgress = useCallback(() => {
     const canvas = canvasRef.current;
@@ -150,7 +168,7 @@ export function ScratchDate({ config }: { config: WeddingConfig }) {
   };
 
   return (
-    <section className="relative py-24 sm:py-28 bg-cream texture-grain overflow-hidden">
+    <section className="relative overflow-hidden bg-cream py-14 texture-grain sm:py-18">
       <CornerVine className="pointer-events-none absolute -top-2 -left-10 w-40 opacity-50 float-soft sm:-left-6 sm:w-72 sm:opacity-70" />
       <div className="relative max-w-xl mx-auto px-4 sm:px-6 text-center">
         <Reveal>
@@ -233,14 +251,16 @@ export function ScratchDate({ config }: { config: WeddingConfig }) {
                   </div>
                 </div>
 
-                <div className="mt-2 flex items-center gap-2 sm:gap-3">
-                  <span className="hidden h-px w-6 bg-gold/60 sm:block sm:w-9" />
-                  <SparkleGlyph className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
-                  <span className="font-sans text-[8px] sm:text-[10px] tracking-[0.24em] sm:tracking-[0.4em] uppercase text-goldrich whitespace-nowrap">
-                    {config.startTime} onwards
-                  </span>
-                  <SparkleGlyph className="w-2 h-2 sm:w-2.5 sm:h-2.5" />
-                  <span className="hidden h-px w-6 bg-gold/60 sm:block sm:w-9" />
+                <div className="mt-2 flex items-center justify-center gap-2">
+                  <SparkleGlyph className="h-2 w-2 shrink-0" />
+                  {multipleDates ? (
+                    <span className="font-sans text-xs font-medium text-goldrich sm:text-sm">{eventNames}</span>
+                  ) : (
+                    <time dateTime={config.isoDate} className="font-sans text-sm font-medium text-goldrich">
+                      {config.startTime}
+                    </time>
+                  )}
+                  <SparkleGlyph className="h-2 w-2 shrink-0" />
                 </div>
 
                 {/* golden sheen sweep on reveal */}
@@ -257,6 +277,7 @@ export function ScratchDate({ config }: { config: WeddingConfig }) {
 
             <canvas
               ref={canvasRef}
+              aria-hidden="true"
               className={`absolute inset-0 touch-none transition-opacity duration-1000 ${
                 revealed ? "opacity-0 pointer-events-none" : "opacity-100"
               } ${scratching.current ? "cursor-grabbing" : "cursor-grab"}`}
@@ -269,53 +290,41 @@ export function ScratchDate({ config }: { config: WeddingConfig }) {
         </Reveal>
 
         <Reveal delay={0.45}>
-          <p className="mt-6 font-sans text-[10px] tracking-[0.3em] uppercase text-ink-soft/80">
+          <div className="mt-5 flex flex-col items-center gap-3">
             {revealed ? (
               <motion.span
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.7 }}
-                className="inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1"
+                className="inline-flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 font-sans text-sm text-ink-soft"
               >
                 {multipleDates ? "Save the dates" : "Save the date"} ·
                 <button
-                  onClick={() => {
-                    const ics = [
-                      "BEGIN:VCALENDAR",
-                      "VERSION:2.0",
-                      ...config.events
-                        .filter((ev) => ev.enabled)
-                        .flatMap((ev, index) => [
-                          "BEGIN:VEVENT",
-                          `UID:${icsUtcStamp(ev.isoDate)}-${index}@uzair-rahma`,
-                          `DTSTART:${icsUtcStamp(ev.isoDate)}`,
-                          `DTEND:${icsUtcStamp(ev.isoDate, 5)}`,
-                          `SUMMARY:${config.groom} weds ${config.bride} — ${ev.name}`,
-                          `LOCATION:${ev.venue.replace(/,/g, "\\,")}`,
-                          "END:VEVENT",
-                        ]),
-                      "END:VCALENDAR",
-                    ].join("\r\n");
-                    const blob = new Blob([ics], { type: "text/calendar" });
-                    const a = document.createElement("a");
-                    a.href = URL.createObjectURL(blob);
-                    a.download = `${config.groom}-${config.bride}-wedding.ics`.toLowerCase();
-                    a.click();
-                  }}
-                  className="inline-flex items-center gap-2 underline underline-offset-4 decoration-gold/60 text-goldrich hover:text-ink transition-colors"
+                  type="button"
+                  onClick={() =>
+                    downloadCalendar(config, config.events.filter((event) => event.enabled))
+                  }
+                  className="inline-flex min-h-11 items-center gap-2 underline underline-offset-4 decoration-gold/60 text-goldrich transition-colors hover:text-ink"
                 >
                   <CalendarPlus className="w-3.5 h-3.5" strokeWidth={1.6} />
                   Add to calendar
                 </button>
               </motion.span>
-            ) : progress > 0.04 ? (
-              "keep scratching…"
             ) : (
-              <button onClick={manualReveal} className="underline underline-offset-4 decoration-gold/50 hover:text-goldrich transition-colors">
-                or tap here to reveal instantly
+              <p role="status" className="font-sans text-sm text-ink-soft">
+                {progress > 0.04 ? "Keep scratching, or reveal the date now." : "Scratch the foil or reveal the date now."}
+              </p>
+            )}
+            {!revealed && (
+              <button
+                type="button"
+                onClick={manualReveal}
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-goldrich px-5 py-2 font-sans text-sm font-medium text-goldrich transition-colors hover:bg-goldrich hover:text-cream focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-goldrich"
+              >
+                {multipleDates ? "Reveal the dates now" : "Reveal the date now"}
               </button>
             )}
-          </p>
+          </div>
         </Reveal>
       </div>
     </section>

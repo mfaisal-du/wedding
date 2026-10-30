@@ -20,8 +20,8 @@ export function Footer({ config }: { config: WeddingConfig }) {
           <SparkleGlyph className="w-4 h-4 mx-auto mb-6 float-soft" />
         </Reveal>
         <Reveal delay={0.1}>
-          <h2 className="font-script text-[13vw] sm:text-6xl md:text-7xl text-goldrich leading-tight">
-            Hope to see you there
+          <h2 className="font-serif text-2xl leading-relaxed text-goldrich sm:text-3xl">
+            We look forward to celebrating with you.
           </h2>
         </Reveal>
         <Reveal delay={0.22}>
@@ -39,7 +39,7 @@ export function Footer({ config }: { config: WeddingConfig }) {
           </div>
         </Reveal>
         <Reveal delay={0.38}>
-          <p className="mt-12 font-sans text-[10px] tracking-[0.34em] uppercase text-ink-soft/70">
+          <p className="mt-8 font-sans text-xs text-ink-soft/70">
             Designed by 3BS
           </p>
         </Reveal>

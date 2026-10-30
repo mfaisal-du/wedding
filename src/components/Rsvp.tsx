@@ -1,7 +1,7 @@
 import { MessageCircle } from "lucide-react";
 import { Reveal, Ornament } from "./Reveal";
 import { CornerVine, HeartFlourish } from "./Ornaments";
-import { LOOKING_FORWARD, RSVP_NAMES, RSVP_PHONES } from "../config/wedding";
+import { LOOKING_FORWARD, RSVP_CONTACTS, RSVP_NAMES } from "../config/wedding";
 
 function telHref(phone: string) {
   return `tel:${phone.replace(/[^\d+]/g, "")}`;
@@ -75,25 +75,29 @@ export function Rsvp() {
               </div>
 
               <div className="mt-6 space-y-2.5">
-                <p className="font-sans text-[9px] uppercase tracking-[0.4em] text-ink-soft">
-                  Contact
+                <p className="font-sans text-sm font-medium text-ink-soft">
+                  Contact the family
                 </p>
-                {RSVP_PHONES.map((phone) => (
-                  <div key={phone} className="flex items-center justify-center gap-2.5">
+                {RSVP_CONTACTS.map(({ name, phone, whatsappPhone }) => (
+                  <div key={phone} className="flex items-center justify-between gap-3 border-b border-cream-line/70 py-3 last:border-0">
+                    <div className="min-w-0 text-left">
+                      <p className="font-sans text-sm font-semibold text-ink">{name}</p>
+                      <a
+                        href={telHref(phone)}
+                        dir="ltr"
+                        className="mt-0.5 inline-block font-sans text-base tabular-nums text-ink-soft [unicode-bidi:isolate] transition-colors hover:text-goldrich"
+                      >
+                        {phone}
+                      </a>
+                    </div>
                     <a
-                      href={telHref(phone)}
-                      className="font-serif text-lg text-ink transition-colors hover:text-goldrich"
-                    >
-                      {phone}
-                    </a>
-                    <a
-                      href={whatsappHref(phone)}
+                      href={whatsappHref(whatsappPhone)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      aria-label={`Message ${phone} on WhatsApp`}
-                      className="grid h-7 w-7 place-items-center rounded-full border border-gold/40 text-goldrich transition-colors hover:bg-gold/10"
+                      aria-label={`Message ${name} on WhatsApp`}
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-gold/40 text-goldrich transition-colors hover:bg-gold/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-goldrich"
                     >
-                      <MessageCircle className="h-3.5 w-3.5" strokeWidth={1.7} />
+                      <MessageCircle className="h-4 w-4" strokeWidth={1.7} />
                     </a>
                   </div>
                 ))}

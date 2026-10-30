@@ -1,6 +1,9 @@
+import { useReducedMotion } from "framer-motion";
+
 /** soft drifting petals shared across screens */
 export function PetalField({ count = 14, tone = "bg-blush/45" }: { count?: number; tone?: string }) {
-  const petals = Array.from({ length: count });
+  const reduceMotion = useReducedMotion();
+  const petals = Array.from({ length: reduceMotion ? 0 : count });
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
       {petals.map((_, i) => {

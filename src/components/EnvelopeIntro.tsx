@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { SparkleGlyph } from "./Reveal";
 import { PetalField } from "./Petals";
 import { Paisley } from "./Ornaments";
@@ -21,43 +21,52 @@ export function EnvelopeIntro({
 }) {
   const [stage, setStage] = useState<"sealed" | "opening" | "gone">("sealed");
   const [flapBehind, setFlapBehind] = useState(false);
+  const reduceMotion = useReducedMotion();
+  const previousOverflow = useRef("");
 
   useEffect(() => {
+    previousOverflow.current = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow.current;
     };
   }, []);
 
   const open = () => {
     if (stage !== "sealed") return;
     setStage("opening");
-    // fired within the same user gesture so the soundtrack may begin
     onFirstTap?.();
     window.setTimeout(() => {
       setStage("gone");
-      document.body.style.overflow = "";
+      document.body.style.overflow = previousOverflow.current;
       onOpened();
-    }, 2400);
+    }, reduceMotion ? 900 : 2600);
   };
 
   const initials = `${config.groom.charAt(0)}·${config.bride.charAt(0)}`.toUpperCase();
-  const monthShort = config.month.slice(0, 3);
 
   return (
     <AnimatePresence>
       {stage !== "gone" && (
         <motion.div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cream texture-grain overflow-hidden"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-x-hidden overflow-y-auto bg-cream px-4 py-8 texture-grain"
           exit={{ opacity: 0, scale: 1.06, filter: "blur(8px)" }}
-          transition={{ duration: 1.1, ease: [0.65, 0, 0.35, 1] }}
+          transition={{ duration: reduceMotion ? 0 : 0.35, ease: [0.65, 0, 0.35, 1] }}
         >
           <PetalField />
 
+          <div className="relative z-20 mb-8 max-w-[90vw] text-center sm:mb-10">
+            <p className="font-script text-4xl leading-tight text-goldrich sm:text-5xl">
+              Wedding Invitation
+            </p>
+          </div>
+
           {/* ------ envelope ------ */}
           <motion.button
+            type="button"
             onClick={open}
             aria-label="Open your invitation"
+            aria-describedby="envelope-open-hint"
             className="relative block cursor-pointer outline-none"
             style={{ perspective: 1400 }}
             initial={{ opacity: 0, y: 40, scale: 0.94 }}
@@ -96,15 +105,15 @@ export function EnvelopeIntro({
                 }
               >
                 <SparkleGlyph className="w-3 h-3 sm:w-3.5 sm:h-3.5 opacity-80" />
-                <p className="font-sans text-[7px] sm:text-[9px] tracking-[0.34em] sm:tracking-[0.42em] uppercase text-ink-soft text-center leading-relaxed">
+                <p className="font-sans text-[7px] leading-relaxed text-center uppercase tracking-[0.3em] text-ink-soft sm:text-[9px]">
                   The {config.eventLabel} of
                 </p>
-                <p className="font-script text-lg sm:text-2xl text-goldrich leading-tight text-center max-w-full px-1 break-words">
-                  {config.groom} <span className="font-serif text-sm italic sm:text-base">weds</span> {config.bride}
+                <p className="max-w-full break-words px-1 text-center font-script text-lg leading-tight text-goldrich sm:text-2xl">
+                  {config.groom} <span className="font-serif text-xs italic sm:text-base">weds</span> {config.bride}
                 </p>
                 <div className="w-10 h-px bg-gold/60 my-0.5 sm:my-1" />
-                <p className="font-sans text-[7px] sm:text-[9px] tracking-[0.26em] sm:tracking-[0.3em] uppercase text-ink-soft text-center">
-                  {config.day} · {monthShort} · {config.year}
+                <p className="font-sans text-[7px] text-center tracking-[0.12em] text-ink-soft sm:text-[9px]">
+                  {config.day} {config.month} {config.year}
                 </p>
               </motion.div>
 
@@ -221,23 +230,19 @@ export function EnvelopeIntro({
             </div>
           </motion.button>
 
-          {/* tap hint */}
+          {/* opening hint */}
           <motion.div
-            className="absolute inset-x-0 bottom-[12vh] flex flex-col items-center gap-4"
+            className="relative z-20 mt-7 flex flex-col items-center gap-3"
             animate={stage === "opening" ? { opacity: 0, y: 10 } : { opacity: 1 }}
             transition={{ duration: 0.4 }}
           >
-            <motion.span
-              className="font-serif italic text-xl sm:text-2xl text-goldrich"
-              animate={{ opacity: [0.45, 1, 0.45] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              Tap to open
-            </motion.span>
-            <div className="flex items-center gap-3 text-ink-soft">
-              <span className="w-10 h-px bg-gold/50" />
-              <SparkleGlyph className="w-3 h-3" />
-              <span className="w-10 h-px bg-gold/50" />
+            <p id="envelope-open-hint" className="font-serif text-lg text-goldrich">
+              Activate the envelope to open
+            </p>
+            <div className="flex items-center gap-3 text-ink-soft" aria-hidden>
+              <span className="h-px w-10 bg-gold/50" />
+              <SparkleGlyph className="h-3 w-3" />
+              <span className="h-px w-10 bg-gold/50" />
             </div>
           </motion.div>
         </motion.div>

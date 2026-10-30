@@ -1,6 +1,7 @@
 ﻿export type TimelineIcon = "mehndi" | "sehra" | "barat" | "reception" | "lunch";
 
 export interface TimelineItem {
+  eventKey: EventKey;
   date: string;
   title: string;
   time: string;
@@ -25,19 +26,13 @@ export type InvitationKey = "mehndi" | "barat" | "walima" | "all";
 export interface InvitationProfile {
   eventLabel: string;
   events: EventKey[];
-  day: string;
-  month: string;
-  year: string;
-  weekday: string;
-  startTime: string;
-  isoDate: string;
   countdownLine: string;
-  timeline: TimelineItem[];
 }
 
 export interface EventTime {
   label: string;
-  value: string;
+  isoDate: string;
+  note?: string;
 }
 
 export interface WeddingEvent {
@@ -48,12 +43,7 @@ export interface WeddingEvent {
   nameUr: string;
   tagline: string;
   taglineUr: string;
-  date: string;
-  time: string;
-  /** local ISO datetime used for calendar export */
-  isoDate: string;
-  /** optional labelled timings shown instead of the single time line */
-  times?: EventTime[];
+  times: EventTime[];
   venue: string;
   venueUr: string;
   /** opens the venue in Google Maps */
@@ -101,10 +91,7 @@ export const DEFAULT_EVENTS: WeddingEvent[] = [
     nameUr: "مہندی",
     tagline: "An evening of henna, dhol & colour",
     taglineUr: "مہندی، ڈھول اور رنگوں کی شام",
-    date: "Friday, 6th November 2026",
-    time: "6:00 PM",
-    isoDate: "2026-11-06T18:00:00",
-    times: [{ label: "Mehndi", value: "6:00 PM" }],
+    times: [{ label: "Mehndi", isoDate: "2026-11-06T18:00:00+05:00" }],
     venue: "Abdullah Garden & Marquee, Sabzwari Town, Canal Road, Multan",
     venueUr: "عبداللہ گارڈن اینڈ مارکی، سبزواری ٹاؤن، کینال روڈ، ملتان",
     mapUrl: ABDULLAH_GARDEN_MAP,
@@ -117,12 +104,9 @@ export const DEFAULT_EVENTS: WeddingEvent[] = [
     nameUr: "بارات",
     tagline: "The wedding procession & celebration",
     taglineUr: "بارات اور شادی کی تقریب",
-    date: "Saturday, 7th November 2026",
-    time: "7:00 AM",
-    isoDate: "2026-11-07T07:00:00",
     times: [
-      { label: "Sehra Bandi", value: "7:00 AM" },
-      { label: "Departure of Barat", value: "8:00 AM (Sharp)" },
+      { label: "Sehra Bandi", isoDate: "2026-11-07T07:00:00+05:00" },
+      { label: "Departure of Barat", isoDate: "2026-11-07T08:00:00+05:00", note: "Sharp" },
     ],
     venue: "Rana House # 254, Sabzwari Town, Multan",
     venueUr: "رانا ہاؤس نمبر 254، سبزواری ٹاؤن، ملتان",
@@ -134,14 +118,11 @@ export const DEFAULT_EVENTS: WeddingEvent[] = [
     enabled: true,
     name: "Walima",
     nameUr: "ولیمہ",
-    tagline: "A celebration dinner in our honour",
+    tagline: "Join us for our Walima luncheon.",
     taglineUr: "ولیمہ کی پُروقار دعوت",
-    date: "Sunday, 8th November 2026",
-    time: "1:00 PM",
-    isoDate: "2026-11-08T13:00:00",
     times: [
-      { label: "Reception of Guests", value: "1:00 PM" },
-      { label: "Lunch", value: "2:00 PM" },
+      { label: "Reception of Guests", isoDate: "2026-11-08T13:00:00+05:00" },
+      { label: "Lunch", isoDate: "2026-11-08T14:00:00+05:00" },
     ],
     venue:
       "Green Land Marriage Hall (1), Jail Mor, Near Shell Petrol Pump, Vehari Road, Multan",
@@ -150,54 +131,49 @@ export const DEFAULT_EVENTS: WeddingEvent[] = [
   },
 ];
 
-const MEHNDI_SCHEDULE: TimelineItem[] = [
-  {
-    date: "Fri 6 Nov",
-    title: "Mehndi",
-    time: "6:00 PM",
-    venue: "Abdullah Garden & Marquee",
-    mapUrl: ABDULLAH_GARDEN_MAP,
-    icon: "mehndi",
-  },
-];
+export function formatWeddingDate(isoDate: string): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: PAKISTAN_TIME_ZONE,
+  }).format(pakistanDate(isoDate));
+}
 
-const BARAT_SCHEDULE: TimelineItem[] = [
-  {
-    date: "Sat 7 Nov",
-    title: "Sehra Bandi",
-    time: "7:00 AM",
-    venue: "Rana House # 254, Sabzwari Town",
-    mapUrl: SABZWARI_TOWN_MAP,
-    icon: "sehra",
-  },
-  {
-    date: "Sat 7 Nov",
-    title: "Departure of Barat",
-    time: "8:00 AM (Sharp)",
-    venue: "Rana House # 254, Sabzwari Town",
-    mapUrl: SABZWARI_TOWN_MAP,
-    icon: "barat",
-  },
-];
+export function formatWeddingTime(isoDate: string): string {
+  return new Intl.DateTimeFormat("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: PAKISTAN_TIME_ZONE,
+  }).format(pakistanDate(isoDate));
+}
 
-const WALIMA_SCHEDULE: TimelineItem[] = [
-  {
-    date: "Sun 8 Nov",
-    title: "Reception of Guests",
-    time: "1:00 PM",
-    venue: "Green Land Marriage Hall (1)",
-    mapUrl: GREEN_LAND_MAP,
-    icon: "reception",
-  },
-  {
-    date: "Sun 8 Nov",
-    title: "Lunch",
-    time: "2:00 PM",
-    venue: "Green Land Marriage Hall (1)",
-    mapUrl: GREEN_LAND_MAP,
-    icon: "lunch",
-  },
-];
+function datePart(isoDate: string, part: "day" | "month" | "year" | "weekday"): string {
+  const options: Intl.DateTimeFormatOptions = { timeZone: PAKISTAN_TIME_ZONE };
+  if (part === "day") options.day = "numeric";
+  else if (part === "year") options.year = "numeric";
+  else options[part] = "long";
+  return new Intl.DateTimeFormat("en-US", options).format(pakistanDate(isoDate));
+}
+
+const EVENT_ICON: Record<EventKey, TimelineIcon[]> = {
+  mehndi: ["mehndi"],
+  barat: ["sehra", "barat"],
+  walima: ["reception", "lunch"],
+};
+
+const DEFAULT_TIMELINE: TimelineItem[] = DEFAULT_EVENTS.flatMap((event) =>
+  event.times.map((time, index) => ({
+    eventKey: event.key,
+    date: formatWeddingDate(time.isoDate),
+    title: time.label,
+    time: `${formatWeddingTime(time.isoDate)}${time.note ? ` (${time.note})` : ""}`,
+    venue: event.venue,
+    mapUrl: event.mapUrl,
+    icon: EVENT_ICON[event.key][index],
+  }))
+);
 
 export const RSVP_NAMES = [
   "Rana M. Faisal Ismail",
@@ -205,7 +181,11 @@ export const RSVP_NAMES = [
   "& All Family Members, Relatives & Friends",
 ];
 
-export const RSVP_PHONES = ["0300-9635752", "0304-4258489", "0304-9992754"];
+export const RSVP_CONTACTS = [
+  { name: "Rana Ismail", phone: "0300-9635752", whatsappPhone: "0300-9635752" },
+  { name: "Rana Umair", phone: "0304-4258489", whatsappPhone: "0304-4258489" },
+  { name: "Rana Faisal", phone: "0304-9992754", whatsappPhone: "+968-95305730" },
+];
 
 export const LOOKING_FORWARD = [
   "Rana Sultan Ahmed (Ex. Chairman UC Langar Sarai) (Late)",
@@ -234,50 +214,22 @@ export const INVITATION_PROFILES: Record<InvitationKey, InvitationProfile> = {
   mehndi: {
     eventLabel: "Mehndi Celebration",
     events: ["mehndi"],
-    day: "6",
-    month: "November",
-    year: "2026",
-    weekday: "Friday",
-    startTime: "6:00 PM",
-    isoDate: "2026-11-06T18:00:00",
     countdownLine: "until the mehndi begins",
-    timeline: MEHNDI_SCHEDULE,
   },
   barat: {
     eventLabel: "Barat Ceremony",
     events: ["barat"],
-    day: "7",
-    month: "November",
-    year: "2026",
-    weekday: "Saturday",
-    startTime: "7:00 AM",
-    isoDate: "2026-11-07T07:00:00",
     countdownLine: "until the barat begins",
-    timeline: BARAT_SCHEDULE,
   },
   walima: {
     eventLabel: "Walima Reception",
     events: ["walima"],
-    day: "8",
-    month: "November",
-    year: "2026",
-    weekday: "Sunday",
-    startTime: "1:00 PM",
-    isoDate: "2026-11-08T13:00:00",
     countdownLine: "until the walima begins",
-    timeline: WALIMA_SCHEDULE,
   },
   all: {
     eventLabel: "Wedding Celebrations",
     events: ["mehndi", "barat", "walima"],
-    day: "6 · 7 · 8",
-    month: "November",
-    year: "2026",
-    weekday: "Save the dates",
-    startTime: "6:00 PM",
-    isoDate: "2026-11-06T18:00:00",
     countdownLine: "until the celebrations begin",
-    timeline: [...MEHNDI_SCHEDULE, ...BARAT_SCHEDULE, ...WALIMA_SCHEDULE],
   },
 };
 
@@ -293,7 +245,7 @@ export const DEFAULT_CONFIG: WeddingConfig = {
   brideUr: "رحمہ فاروق",
   invitedLineUr: "آپ کو ہماری تقریبِ سعید میں مدعو کیا جاتا ہے",
   inviteMessage:
-    "Join us for an evening of love, laughter, duas, and cherished memories as we begin our forever — together.",
+    "Join us with your prayers and blessings as we celebrate our wedding and begin our life together.",
   inviteMessageUr:
     "محبت، دعاؤں اور خوشیوں سے بھرپور اس موقع پر ہمارے ساتھ شریک ہوں۔",
   events: DEFAULT_EVENTS,
@@ -301,16 +253,19 @@ export const DEFAULT_CONFIG: WeddingConfig = {
   month: "November",
   year: "2026",
   weekday: "Save the dates",
-  startTime: "6:00 PM",
-  isoDate: "2026-11-06T18:00:00",
+  startTime: "",
+  isoDate: DEFAULT_EVENTS[0].times[0].isoDate,
   countdownLine: "until the celebrations begin",
   verse: "And We created you in pairs.",
   verseRef: "Surah An-Naba · 78:8",
-  timeline: [...MEHNDI_SCHEDULE, ...BARAT_SCHEDULE, ...WALIMA_SCHEDULE],
+  timeline: DEFAULT_TIMELINE,
 };
 
 export function resolveInvitationKey(): InvitationKey {
   if (typeof window === "undefined") return "all";
+  const pathKey = window.location.pathname.match(/^\/invite\/(mehndi|barat|walima|valima)\/?$/)?.[1];
+  if (pathKey === "mehndi" || pathKey === "barat" || pathKey === "walima") return pathKey;
+  if (pathKey === "valima") return "walima";
   const params = new URLSearchParams(window.location.search);
   const raw = (params.get("invite") ?? params.get("event") ?? "").toLowerCase();
   if (raw === "mehndi" || raw === "barat") return raw;
@@ -322,21 +277,25 @@ export function buildInvitationConfig(
   key: InvitationKey = resolveInvitationKey()
 ): WeddingConfig {
   const profile = INVITATION_PROFILES[key] ?? INVITATION_PROFILES.all;
+  const selectedEvents = DEFAULT_EVENTS.filter((event) => profile.events.includes(event.key));
+  const firstTime = selectedEvents[0].times[0];
   return {
     ...DEFAULT_CONFIG,
     eventLabel: profile.eventLabel,
-    day: profile.day,
-    month: profile.month,
-    year: profile.year,
-    weekday: profile.weekday,
-    startTime: profile.startTime,
-    isoDate: profile.isoDate,
+    day: selectedEvents.length === 1
+      ? datePart(firstTime.isoDate, "day")
+      : selectedEvents.map((event) => datePart(event.times[0].isoDate, "day")).join(" · "),
+    month: datePart(firstTime.isoDate, "month"),
+    year: datePart(firstTime.isoDate, "year"),
+    weekday: selectedEvents.length === 1 ? datePart(firstTime.isoDate, "weekday") : "Save the dates",
+    startTime: selectedEvents.length === 1 ? formatWeddingTime(firstTime.isoDate) : "",
+    isoDate: firstTime.isoDate,
     countdownLine: profile.countdownLine,
     events: DEFAULT_EVENTS.map((event) => ({
       ...event,
       enabled: profile.events.includes(event.key),
     })),
-    timeline: profile.timeline,
+    timeline: DEFAULT_TIMELINE.filter((item) => profile.events.includes(item.eventKey)),
   };
 }
 
