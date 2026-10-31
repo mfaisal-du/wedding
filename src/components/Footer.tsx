@@ -25,8 +25,10 @@ export function Footer({ config }: { config: WeddingConfig }) {
           </h2>
         </Reveal>
         <Reveal delay={0.22}>
-          <p className="font-script text-3xl sm:text-4xl text-ink mt-5">
-            {config.groom} <span className="text-goldrich">weds</span> {config.bride}
+          <p className="mt-5 flex max-w-full flex-wrap items-baseline justify-center gap-x-2 font-script text-2xl leading-tight text-ink sm:flex-nowrap sm:text-4xl">
+            <span className="whitespace-nowrap">{config.groom}</span>
+            <span className="whitespace-nowrap text-goldrich">weds</span>
+            <span className="whitespace-nowrap">{config.bride}</span>
           </p>
         </Reveal>
         <Reveal delay={0.3}>
