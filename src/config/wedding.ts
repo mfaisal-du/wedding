@@ -125,8 +125,8 @@ export const DEFAULT_EVENTS: WeddingEvent[] = [
       { label: "Lunch", isoDate: "2026-11-08T14:00:00+05:00" },
     ],
     venue:
-      "Green Land Marriage Hall (1), Jail Mor, Near Shell Petrol Pump, Vehari Road, Multan",
-    venueUr: "گرین لینڈ میرج ہال (1)، جیل مور، نیئر شیل پیٹرول پمپ، وہاڑی روڈ، ملتان",
+      "Green Land Marriage Hall (1), Jail Mod, Near Shell Petrol Pump, Vehari Road, Multan",
+    venueUr: "گرین لینڈ میرج ہال (1)، جیل موڈ، شیل پیٹرول پمپ کے قریب، وہاڑی روڈ، ملتان",
     mapUrl: GREEN_LAND_MAP,
   },
 ];
