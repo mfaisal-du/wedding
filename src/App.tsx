@@ -9,7 +9,7 @@ import { Events } from "./components/Events";
 import { Countdown } from "./components/Countdown";
 import { Rsvp } from "./components/Rsvp";
 import { Footer } from "./components/Footer";
-import YoutubeMusic, { type MusicHandle } from "./audio/YoutubeMusic";
+import BackgroundMusic, { type MusicHandle } from "./audio/BackgroundMusic";
 import { buildInvitationConfig } from "./config/wedding";
 
 export default function App() {
@@ -118,7 +118,7 @@ export default function App() {
           <Events config={config} />
           <Countdown />
           <Rsvp />
-          <YoutubeMusic ref={musicRef} />
+          <BackgroundMusic ref={musicRef} />
           <Footer config={config} />
         </div>
         <AnimatePresence>

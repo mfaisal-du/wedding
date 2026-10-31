@@ -24,4 +24,4 @@ The current build is deployed to `https://3bs.io`. The root page, shared thumbna
 
 When deploying future builds, publish `index.html`, `wedding-share.jpg`, all four nested `invite` pages, and the scoped root `.htaccess` rules. Do not overwrite or modify sibling projects in the Hostinger document root.
 
-The existing soundtrack remains the YouTube video ID configured in `src/audio/YoutubeMusic.tsx`. Browser/OS autoplay and codec support vary; playback status follows YouTube player events and offers an explicit retry and direct YouTube link.
+The soundtrack is bundled at `public/audio/TMRD-BG.mp3` and served from `/audio/TMRD-BG.mp3`. The envelope tap attempts playback directly through one persistent HTML audio element; browser autoplay policies can still block sound, in which case the footer control offers a retry.
