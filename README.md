@@ -24,4 +24,4 @@ The current build is deployed to `https://3bs.io`. The root page, shared thumbna
 
 When deploying future builds, publish `index.html`, `wedding-share.jpg`, all four nested `invite` pages, and the scoped root `.htaccess` rules. Do not overwrite or modify sibling projects in the Hostinger document root.
 
-The soundtrack is bundled at `public/audio/TMRD-BG.mp3` and served from `/audio/TMRD-BG.mp3`. The envelope tap attempts playback directly through one persistent HTML audio element; browser autoplay policies can still block sound, in which case the footer control offers a retry.
+The compressed soundtrack is bundled at `public/audio/TMRD-BG-final.mp3` and served from `/audio/TMRD-BG-final.mp3`. The envelope tap attempts playback directly through one persistent HTML audio element; browser autoplay policies can still block sound, in which case the footer control offers a retry.

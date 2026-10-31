@@ -126,7 +126,7 @@ export const DEFAULT_EVENTS: WeddingEvent[] = [
     ],
     venue:
       "Green Land Marriage Hall (1), Jail Mod, Near Shell Petrol Pump, Vehari Road, Multan",
-    venueUr: "گرین لینڈ میرج ہال (1)، جیل موڈ، شیل پیٹرول پمپ کے قریب، وہاڑی روڈ، ملتان",
+    venueUr: "گرین لینڈ میرج ہال (1)، جیل موڑ، شیل پیٹرول پمپ کے قریب، وہاڑی روڈ، ملتان",
     mapUrl: GREEN_LAND_MAP,
   },
 ];

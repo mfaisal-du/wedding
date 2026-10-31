@@ -1,7 +1,7 @@
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { Music, VolumeX } from "lucide-react";
 
-const AUDIO_SOURCE = "/audio/TMRD-BG.mp3";
+const AUDIO_SOURCE = "/audio/TMRD-BG-final.mp3";
 
 export interface MusicHandle {
   play: () => void;
